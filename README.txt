@@ -1,12 +1,7 @@
-EVEREST launcher (Android project)
+EVEREST - one project, two outputs
 
-Build with Android Studio:
-  1. Open this folder in Android Studio and let it sync.
-  2. Build > Build APK(s). The file is app/build/outputs/apk/debug/app-debug.apk.
+APK (Android launcher): upload everything to a GitHub repository (include the hidden .github folder), open Actions > Build APK > Run workflow, then download EVEREST-apk from the finished run.
 
-Build with GitHub (no install needed):
-  1. Create a GitHub repository and upload everything here, including the hidden .github folder.
-  2. Open the Actions tab, run "Build APK", then download EVEREST-apk from the finished run.
+Website (installable from Chrome): in the same repository open Settings > Pages, set Source to "Deploy from a branch", Branch "main", Folder "/docs", and save. Your address appears there.
 
-Install: copy the APK to your phone, open it, allow "Install unknown apps" if asked.
-Then open EVEREST > Settings > Launcher > Default home screen > Set, and choose EVEREST.
+Install the APK, then open EVEREST > Settings > Launcher > Default home screen > Set.

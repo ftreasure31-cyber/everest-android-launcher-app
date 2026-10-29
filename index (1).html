@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>EVEREST</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b1d24;--panel:#e9f3f0;--ink:#0d2a30;--mute:#5d7a80;--acc:#ff6b5a;--card:#ffffffcc;--sea:#7fd1b9;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root[data-theme="dark"]{--panel:#10262d;--ink:#e6f4f0;--mute:#8fb0b0;--card:#1b3a43cc}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--panel:#10262d;--ink:#e6f4f0;--mute:#8fb0b0;--card:#1b3a43cc}}
+*{box-sizing:border-box;margin:0;font-family:'Bricolage Grotesque',system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{background:var(--bg);display:flex;align-items:center;justify-content:center;color:var(--ink)}
+#phone{position:relative;width:390px;height:min(820px,100%);border-radius:44px;overflow:hidden;background:#000;box-shadow:0 0 0 10px #1c3640,0 30px 80px #0008}
+@media(max-width:500px),(pointer:coarse){#phone{width:100%;height:100%;border-radius:0;box-shadow:none}}
+.wall{position:absolute;inset:0;background:var(--w);transition:background .5s}
+.layer{position:absolute;inset:0;display:flex;flex-direction:column}
+#status{position:absolute;top:0;left:0;right:0;height:38px;display:flex;justify-content:space-between;align-items:center;padding:0 24px;font-size:14px;font-weight:600;color:#fff;z-index:50;cursor:pointer;text-shadow:0 1px 4px #0005}
+#status.dk{color:var(--ink);text-shadow:none}
+#lock{z-index:40;color:#fff;align-items:center;justify-content:center;text-align:center;transition:transform .4s ease;cursor:grab;background:#0002;touch-action:none;user-select:none}
+#lock.off{transform:translateY(-100%)}
+#lock .t{font-size:96px;font-weight:800;line-height:1;letter-spacing:-3px}
+#lock .d{font-size:18px;margin-top:8px;opacity:.9}
+#lock .h{position:absolute;bottom:48px;font-size:14px;opacity:.8}
+#home{padding:56px 22px 0}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px 8px;margin-top:20px}
+.app{display:flex;flex-direction:column;align-items:center;gap:6px;color:#fff;font-size:12px;cursor:pointer;background:none;border:0;text-shadow:0 1px 3px #0006}
+.ic{width:60px;height:60px;border-radius:19px;display:grid;place-items:center;font-size:28px;box-shadow:0 4px 12px #0003;transition:transform .15s}
+.app:active .ic{transform:scale(.9)}
+.widget{background:var(--card);backdrop-filter:blur(14px);border-radius:26px;padding:16px 18px;color:var(--ink)}
+.widget b{font-size:40px;letter-spacing:-1px;font-weight:800}
+.dock{position:absolute;left:14px;right:14px;bottom:26px;height:84px;border-radius:30px;background:#ffffff30;backdrop-filter:blur(16px);display:flex;justify-content:space-around;align-items:center}
+#appwin{z-index:30;background:var(--panel);padding-top:42px;transform:scale(.85);opacity:0;pointer-events:none;border-radius:40px;transition:all .25s ease}
+#appwin.on{transform:none;opacity:1;pointer-events:auto;border-radius:0}
+.bar{padding:6px 20px 12px;font-size:28px;font-weight:800;letter-spacing:-1px}
+.body{flex:1;overflow:auto;padding:0 18px 90px}
+#homebar{position:absolute;bottom:8px;left:50%;width:130px;height:6px;margin-left:-65px;border-radius:3px;background:#fff;z-index:60;cursor:pointer;box-shadow:0 0 6px #0006}
+#shade{z-index:55;background:#0b1d24ee;backdrop-filter:blur(20px);padding:56px 20px;color:#fff;transform:translateY(-100%);transition:transform .35s ease}
+#shade.on{transform:none}
+.tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:14px 0}
+.tile{padding:16px;border-radius:20px;background:#ffffff1c;border:0;color:#fff;text-align:left;font-size:15px;cursor:pointer}
+.tile.on{background:var(--sea);color:#0d2a30}
+.note{width:100%;min-height:300px;border:0;border-radius:20px;padding:16px;background:var(--card);color:var(--ink);font-size:17px;resize:none;outline:none}
+.keys{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.keys button,.btn{height:64px;border-radius:22px;border:0;font-size:24px;font-weight:600;background:var(--card);color:var(--ink);cursor:pointer}
+.keys .op{background:var(--acc);color:#fff}.keys .w2{grid-column:span 2}
+.btn{height:48px;font-size:16px;padding:0 20px}.btn.p{background:var(--acc);color:#fff}
+#disp{font-size:54px;font-weight:800;text-align:right;padding:30px 6px 16px;overflow:hidden;white-space:nowrap}
+.row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--card);border-radius:18px;margin-bottom:10px}
+.sw{display:flex;gap:10px}.sw i{width:44px;height:44px;border-radius:14px;cursor:pointer;border:3px solid transparent}.sw i.on{border-color:var(--acc)}
+.todo{display:flex;gap:10px;align-items:center;padding:14px 16px;background:var(--card);border-radius:18px;margin-bottom:8px;cursor:pointer}
+.todo.done span{text-decoration:line-through;color:var(--mute)}
+input.in{flex:1;height:48px;border-radius:16px;border:0;padding:0 14px;font-size:16px;background:var(--card);color:var(--ink);outline:none}
+:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.lkb{position:absolute;bottom:40px;width:54px;height:54px;border-radius:50%;border:0;background:#0006;color:#fff;font-size:22px;cursor:pointer;backdrop-filter:blur(8px)}.lkb.on{background:#fff;color:#000}
+#auth{z-index:42;background:#0b1d24ee;backdrop-filter:blur(22px);color:#fff;align-items:center;padding:70px 24px 24px;gap:14px;transform:translateY(100%);transition:transform .3s ease}
+#auth.on{transform:none}
+#auth h2{font-size:22px;font-weight:800}
+#auth .sub{font-size:14px;opacity:.8;min-height:20px;text-align:center}
+.dots{display:flex;gap:12px;height:16px}.dots i{width:14px;height:14px;border-radius:50%;border:2px solid #fff}.dots i.f{background:#fff}
+.pad{display:grid;grid-template-columns:repeat(3,72px);gap:14px}
+.pad button{height:72px;border-radius:50%;border:0;background:#ffffff1f;color:#fff;font-size:26px;font-weight:600;cursor:pointer}
+.pat{display:grid;grid-template-columns:repeat(3,76px);gap:24px;touch-action:none;margin:10px 0}
+.pat i{width:76px;height:76px;border-radius:50%;display:grid;place-items:center;background:#ffffff14}.pat i:after{content:'';width:18px;height:18px;border-radius:50%;background:#fff8}.pat i.on{background:var(--sea)}.pat i.on:after{background:#0d2a30}
+.body .pat i{background:#0d2a3018}.body .pat i:after{background:#0d2a3088}.body .pat i.on{background:var(--sea)}.body .pat i.on:after{background:#0d2a30}
+.pw{width:100%;height:52px;border-radius:16px;border:0;padding:0 16px;font-size:18px;background:#ffffff1f;color:#fff;outline:none}
+.shake{animation:sh .35s}@keyframes sh{20%,60%{transform:translateX(-10px)}40%,80%{transform:translateX(10px)}}
+.scan{width:84px;height:84px;border-radius:50%;display:grid;place-items:center;font-size:40px;border:3px solid var(--sea);animation:pl 1s infinite}@keyframes pl{50%{opacity:.35}}
+.lk{position:absolute;bottom:90px;left:0;right:0;display:flex;justify-content:center;gap:10px;flex-wrap:wrap;padding:0 12px}
+.seg{display:flex;gap:8px;flex-wrap:wrap}.seg button{flex:1;min-width:70px;height:44px;border:0;border-radius:14px;background:var(--card);color:var(--ink);font-size:15px;cursor:pointer}.seg button.on{background:var(--acc);color:#fff}
+#toast{position:absolute;top:50px;left:20px;right:20px;z-index:70;padding:14px 16px;border-radius:18px;background:var(--sea);color:#0d2a30;font-weight:600;text-align:center;transform:translateY(-160px);transition:transform .3s}#toast.on{transform:none}
+.sw{flex-wrap:wrap}
+.bar{display:flex;align-items:center;gap:10px}
+#abk{width:40px;height:40px;border:0;border-radius:14px;background:var(--card);color:var(--ink);font-size:26px;line-height:1;cursor:pointer}
+#backbtn{position:absolute;bottom:3px;left:22px;z-index:60;border:0;border-radius:12px;width:46px;height:26px;background:#0007;color:#fff;font-size:13px;cursor:pointer}
+.fing{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;width:100%}
+.fing b{grid-column:1/-1;font-size:13px;opacity:.75;font-weight:600;margin-top:4px}
+.fing button{height:40px;border:0;border-radius:12px;background:#ffffff1f;color:#fff;font-size:12px;cursor:pointer}
+.body .fing button{background:var(--card);color:var(--ink)}
+.grid{max-height:calc(100% - 300px);overflow-y:auto;scrollbar-width:none;align-content:start}
+@keyframes up{50%{transform:translateY(-8px)}}
+#lock .h{animation:up 1.6s infinite;text-align:center;line-height:1.6;font-size:15px}
+#shade{background:#242424f2;overflow-y:auto;gap:14px;padding-bottom:80px}#shade>*{flex-shrink:0}
+.cctop{display:flex;justify-content:flex-end;gap:16px}.cctop button{background:none;border:0;color:#fff;font-size:24px;cursor:pointer}
+.cc{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:0}
+.cc .card{background:#141414;border-radius:28px;padding:12px;color:#fff;grid-column:span 2}
+.conn{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cc .pill{grid-column:span 2;height:54px;border:0;border-radius:30px;background:#2c2c2c;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}.cc .pill.g{background:#27c96b;color:#06210f}.pill small{font-size:13px}
+.media{display:flex;flex-direction:column;justify-content:space-between;text-align:center;min-height:150px}.media .mt{color:#8a8a8a;font-size:15px;padding:0 6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.media .mc{display:flex;justify-content:space-around}.media .mc button{background:none;border:0;color:#aaa;font-size:24px;cursor:pointer}
+.dat{display:flex;gap:10px;align-items:center}.dat .dot{width:48px;height:48px;border-radius:50%;background:#27c96b;display:grid;place-items:center;font-size:22px;flex:none}.dat b{font-size:13px}.st2{font-size:12px;color:#9a9a9a}
+.sl{grid-row:span 2;border-radius:28px;background:#141414;position:relative;overflow:hidden;touch-action:none;cursor:ns-resize}.sl i{position:absolute;left:0;right:0;bottom:0;background:#fff}.sl span{position:absolute;bottom:14px;left:0;right:0;text-align:center;font-size:24px}
+.cc .rt{aspect-ratio:1;border-radius:50%;border:0;background:#141414;color:#fff;font-size:26px;cursor:pointer;display:grid;place-items:center}.cc .conn .rt{background:#2c2c2c}.cc .rt.on{background:#2476ff}.cc .rt.w.on{background:#fff;color:#000}.cc .conn .rt.on{background:#2c2c2c;outline:2px solid #fff}
+.cc.edit .rt{outline:2px dashed #ffffff66}.cc .rt.hid{opacity:.3}
+#dim,#warm{position:absolute;inset:0;pointer-events:none;z-index:300}#dim{background:#000;opacity:0}#warm{background:#ff9a2e;mix-blend-mode:multiply;opacity:0;transition:opacity .4s}
+.wall canvas,#lock canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;display:none}
+#lock canvas{z-index:-1}
+.sw i{position:relative}.sw i:nth-child(n+7):after{content:'3D';position:absolute;inset:0;display:grid;place-items:center;font:700 12px sans-serif;color:#fff;text-shadow:0 1px 3px #000a}
+#drawer{z-index:33;background:#0b1d24f2;backdrop-filter:blur(20px);padding:56px 20px 20px;transform:translateY(100%);transition:transform .3s ease}
+#drawer.on{transform:none}#drawer .grid{overflow:auto;flex:1;align-content:start;margin-top:0}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#0a2a8a">
+<meta name="mobile-web-app-capable" content="yes">
+</head>
+<body>
+<div id="phone">
+  <div class="wall" id="wall"><canvas id="wlive"></canvas></div>
+  <div id="status"><span id="stime">9:41</span><span id="sicons">📶 🔋</span></div>
+
+  <div class="layer" id="home">
+    <div class="widget"><div style="font-size:13px;color:var(--mute)" id="wdate"></div><b id="wtime"></b><div style="color:var(--mute);font-size:14px;margin-top:2px" id="wtasks">No open tasks</div></div>
+    <div class="grid" id="grid"></div>
+    <div class="dock" id="dock"></div>
+  </div>
+
+  <div class="layer" id="appwin"><div class="bar"><button id="abk" aria-label="Back">‹</button><span id="apptitle"></span></div><div class="body" id="appbody"></div></div>
+
+  <div class="layer" id="shade">
+    <div class="cctop"><button id="ccset" aria-label="Settings">⚙️</button><button id="ccedit" aria-label="Edit tiles">✎</button></div>
+    <div class="tiles" id="tiles"></div>
+    <button class="tile" id="lockbtn" style="width:100%;margin-bottom:14px">🔒 Lock phone</button>
+    <div style="opacity:.75;font-size:14px" id="notifs"></div>
+  </div>
+
+  <div class="layer" id="drawer"><input class="in" id="dq" placeholder="Search apps" style="flex:none;width:100%;margin-bottom:16px"><div class="grid" id="dg"></div></div>
+  <div class="layer" id="lock"><canvas id="llive"></canvas><div class="t" id="lt"></div><div class="d" id="ld"></div><div class="h" id="hint">⌃<br>Swipe up to unlock</div><button class="lkb" id="lkt" style="left:32px" aria-label="Flashlight">🔦</button><button class="lkb" id="lkc" style="right:32px" aria-label="Camera">📷</button></div>
+  <div class="layer" id="auth"></div>
+  <div id="toast" role="status"></div><div id="dim"></div><div id="warm"></div>
+  <button id="backbtn" aria-label="Back" title="Back">◀</button>
+  <div id="homebar" title="Home" role="button" aria-label="Home"></div>
+</div>
+
+<script>
+const $=s=>document.getElementById(s);
+const store={get(k,d){try{const v=localStorage.getItem('kelp:'+k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem('kelp:'+k,JSON.stringify(v))}catch(e){}}};
+const S={lock:store.get('lock',{type:'none',h:'',len:0,face:false,fp:false}),wall:store.get('wall',0),lwall:store.get('lwall',3),dark:store.get('dark',matchMedia('(prefers-color-scheme: dark)').matches),wifi:true,air:false,dnd:false,notes:store.get('notes',''),todos:store.get('todos',[{t:'Try the notification shade',d:false},{t:'Change the wallpaper',d:false}])};
+const WALLS=['linear-gradient(160deg,#0f4c5c,#1fa390 55%,#a8e6cf)','linear-gradient(160deg,#2b1055,#7597de)','linear-gradient(160deg,#ff6b5a,#ffb88c 60%,#ffe3c2)','linear-gradient(180deg,#0b1d3a,#1c4e80 55%,#f6b17a)','linear-gradient(160deg,#2d3142,#6b7a8f 60%,#eef1f5)','linear-gradient(160deg,#14213d,#fca311)','linear-gradient(180deg,#02061a,#0a2a8a 70%,#2a6df4)','radial-gradient(circle at 50% 50%,#1b2a6b,#02030f 70%)','linear-gradient(160deg,#0b1d3a,#243b6b 60%,#4b2a7a)'];
+let open=null,locked=true,sw=null;
+
+function clock(){const d=new Date(),t=d.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}).replace(/ ?[AP]M/i,''),ds=d.toLocaleDateString([],{weekday:'long',month:'long',day:'numeric'});
+ ['stime','lt','wtime'].forEach(i=>$(i).textContent=t);$('ld').textContent=ds;$('wdate').textContent=ds;}
+function theme(){document.documentElement.dataset.theme=S.dark?'dark':'light';$('wall').style.setProperty('--w',WALLS[S.wall]);$('lock').style.background='linear-gradient(#0002,#0002),'+WALLS[S.lwall];}
+function wtasks(){const n=S.todos.filter(x=>!x.d).length;$('wtasks').textContent=n?n+' open task'+(n>1?'s':''):'All tasks done';}
+
+const APPS=[
+ {id:'notes',n:'Notes',i:'📝',c:'#ffd166',r:notes},
+ {id:'calc',n:'Calculator',i:'🧮',c:'#ff6b5a',r:calc},
+ {id:'tasks',n:'Tasks',i:'✅',c:'#7fd1b9',r:tasks},
+ {id:'clock',n:'Stopwatch',i:'⏱️',c:'#9b8cff',r:clockApp},
+ {id:'settings',n:'Settings',i:'⚙️',c:'#9aa8ad',r:settings},
+ {id:'files',n:'Files',i:'📁',c:'#ffb703',r:files},
+ {id:'link',n:'Phone link',i:'🔗',c:'#8ecae6',r:linkApp},
+ {id:'cam',n:'Camera',i:'📷',c:'#ef476f',r:camApp},
+ 
+ {id:'about',n:'About',i:'🏔️',c:'#4cc9f0',r:about}];
+const DOCK=['notes','calc','settings'];
+function tile(a){return `<button class="app" data-a="${a.id}"><div class="ic" style="background:${a.c}">${a.i}</div>${a.n}</button>`}
+$('grid').innerHTML=APPS.filter(a=>!DOCK.includes(a.id)).map(tile).join('');
+$('dock').innerHTML=DOCK.map(id=>tile(APPS.find(a=>a.id==id)).replace(/\s*<\/button>$/,m=>m).replace(/>[A-Za-z ]+<\/button>/,'></button>')).join('');
+document.querySelectorAll('.app').forEach(b=>b.onclick=()=>launch(b.dataset.a));
+
+function launch(id){const a=APPS.find(x=>x.id==id);open=id;subBack=null;$('apptitle').textContent=a.n;$('appbody').innerHTML='';$('appbody').style.cssText='';a.r($('appbody'));$('appwin').classList.add('on');$('status').classList.add('dk');}
+function goHome(){$('drawer').classList.remove('on');if(LC){closeLC();return}if(locked)return;subBack=null;try{CAMST&&CAMST.getTracks().forEach(t=>t.stop())}catch(e){}if($('shade').classList.contains('on')){$('shade').classList.remove('on');return}
+ if(open==='clock'&&sw)sw.run=false;open=null;$('appwin').classList.remove('on');$('status').classList.remove('dk');wtasks();}
+$('homebar').onclick=goHome;
+
+$('lockbtn').onclick=()=>{locked=true;open=null;['shade','appwin'].forEach(i=>$(i).classList.remove('on'));$('status').classList.remove('dk');$('lock').classList.remove('off')};
+$('status').onclick=()=>{if(!locked){tiles();$('shade').classList.toggle('on')}};
+document.addEventListener('keydown',e=>{if(e.key==='Escape')goHome()});
+
+function notes(el){el.innerHTML='<textarea class="note" placeholder="Start typing. Notes save automatically."></textarea>';const t=el.firstChild;t.value=S.notes;t.oninput=()=>{S.notes=t.value;store.set('notes',t.value)}}
+
+function calc(el){el.innerHTML='<div id="disp">0</div><div class="keys">'+['C','±','%','÷','7','8','9','×','4','5','6','−','1','2','3','+','0','.','='].map(k=>`<button class="${'÷×−+='.includes(k)?'op':''} ${k=='0'?'w2':''}">${k}</button>`).join('')+'</div>';
+ let cur='0',acc=null,op=null,fresh=true;const d=$('disp'),show=()=>d.textContent=cur.length>10?(+cur).toPrecision(8):cur;
+ const f={'+':(a,b)=>a+b,'−':(a,b)=>a-b,'×':(a,b)=>a*b,'÷':(a,b)=>b?a/b:NaN};
+ el.querySelectorAll('.keys button').forEach(b=>b.onclick=()=>{const k=b.textContent;
+  if(/\d/.test(k)){cur=fresh||cur==='0'?k:cur+k;fresh=false}
+  else if(k==='.'){if(!cur.includes('.'))cur+='.';fresh=false}
+  else if(k==='C'){cur='0';acc=op=null;fresh=true}
+  else if(k==='±')cur=String(-cur);
+  else if(k==='%')cur=String(cur/100);
+  else{if(op&&!fresh){acc=f[op](acc,+cur);cur=String(+acc.toFixed(10))}else acc=+cur;op=k==='='?null:k;fresh=true}
+  show()})}
+
+function tasks(el){el.innerHTML='<div style="display:flex;gap:8px;margin-bottom:14px"><input class="in" id="ti" placeholder="Add a task"><button class="btn p" id="ta">Add</button></div><div id="tl"></div>';
+ const draw=()=>{$('tl').innerHTML=S.todos.length?S.todos.map((x,i)=>`<div class="todo ${x.d?'done':''}" data-i="${i}"><span style="font-size:20px">${x.d?'✔️':'⭕'}</span><span style="flex:1">${x.t.replace(/</g,'&lt;')}</span><span data-x="${i}">✕</span></div>`).join(''):'<p style="color:var(--mute)">Nothing here. Add your first task above.</p>';
+  $('tl').querySelectorAll('.todo').forEach(r=>r.onclick=e=>{const i=+r.dataset.i;if(e.target.dataset.x!==undefined)S.todos.splice(i,1);else S.todos[i].d=!S.todos[i].d;store.set('todos',S.todos);draw()})};
+ const add=()=>{const v=$('ti').value.trim();if(v){S.todos.push({t:v,d:false});store.set('todos',S.todos);$('ti').value='';draw()}};
+ $('ta').onclick=add;$('ti').onkeydown=e=>{if(e.key==='Enter')add()};draw()}
+
+function clockApp(el){sw=sw||{ms:0,run:false,last:0,laps:[]};
+ el.innerHTML='<div id="disp" style="text-align:center;font-size:64px"></div><div style="display:flex;gap:10px;justify-content:center;margin-bottom:16px"><button class="btn p" id="s1"></button><button class="btn" id="s2">Lap</button><button class="btn" id="s3">Reset</button></div><div id="laps"></div>';
+ const fmt=m=>{const c=Math.floor(m/10)%100,s=Math.floor(m/1000)%60,mi=Math.floor(m/60000);return String(mi).padStart(2,'0')+':'+String(s).padStart(2,'0')+'.'+String(c).padStart(2,'0')};
+ const draw=()=>{if(!$('disp'))return;$('disp').textContent=fmt(sw.ms);$('s1').textContent=sw.run?'Pause':'Start';$('laps').innerHTML=sw.laps.map((l,i)=>`<div class="row"><span>Lap ${sw.laps.length-i}</span><b>${fmt(l)}</b></div>`).join('')};
+ const tick=()=>{if(!sw.run||open!=='clock')return;const n=performance.now();sw.ms+=n-sw.last;sw.last=n;draw();requestAnimationFrame(tick)};
+ $('s1').onclick=()=>{sw.run=!sw.run;sw.last=performance.now();draw();if(sw.run)tick()};
+ $('s2').onclick=()=>{if(sw.ms){sw.laps.unshift(sw.ms);draw()}};
+ $('s3').onclick=()=>{sw={ms:0,run:false,last:0,laps:[]};draw()};draw()}
+
+function settings(el){el.innerHTML=`<div id="lsec"></div><b style="display:block;margin:2px 4px 10px">Security</b><div id="secbox"></div><b style="display:block;margin:14px 4px 10px">Display</b><div class="row"><span>Dark mode</span><button class="btn" id="sd"></button></div>
+ <div class="row" style="flex-direction:column;align-items:flex-start;gap:12px"><span>Home screen wallpaper</span><div class="sw" id="sws"></div></div>
+ <div class="row" style="flex-direction:column;align-items:flex-start;gap:12px"><span>Lock screen wallpaper</span><div class="sw" id="swl"></div></div>
+ <div class="row"><span>Reset all data</span><button class="btn" id="sr">Reset</button></div>`;
+ const d=()=>$('sd').textContent=S.dark?'On':'Off';d();
+ $('sd').onclick=()=>{S.dark=!S.dark;store.set('dark',S.dark);theme();d()};
+ const w=()=>{$('sws').innerHTML=WALLS.map((g,i)=>`<i style="background:${g}" class="${i==S.wall?'on':''}" data-i="${i}"></i>`).join('');$('sws').querySelectorAll('i').forEach(x=>x.onclick=()=>{S.wall=+x.dataset.i;store.set('wall',S.wall);theme();w()})};w();
+ const wl=()=>{$('swl').innerHTML=WALLS.map((g,i)=>'<i style="background:'+g+'" class="'+(i==S.lwall?'on':'')+'" data-i="'+i+'"></i>').join('');$('swl').querySelectorAll('i').forEach(x=>x.onclick=()=>{S.lwall=+x.dataset.i;store.set('lwall',S.lwall);theme();wl()})};wl();
+ $('sr').onclick=()=>{try{localStorage.clear()}catch(e){}S.lock={type:'none',h:'',len:0,face:false,fp:false};S.notes='';S.todos=[];S.wall=0;S.lwall=3;S.dark=false;theme();wtasks();$('sr').textContent='Done'};security($('secbox'));launcherSec($('lsec'))}
+
+function about(el){el.innerHTML=`<div class="row" style="flex-direction:column;align-items:flex-start;gap:8px"><b style="font-size:20px">EVEREST 0.1</b><span style="color:var(--mute);line-height:1.5">A working mobile OS interface: lock screen, home screen, app launcher, notification shade, gestures and six apps. It runs in your browser. A real device OS also needs a kernel, drivers and a hardware runtime, which this does not include.</span></div>
+ <div class="row"><span>Home gesture</span><span style="color:var(--mute)">Tap the bar, or Esc</span></div>
+ <div class="row"><span>Install</span><span style="color:var(--mute);text-align:right">Chrome ⋮ → Add to Home screen</span></div>
+ <div class="row"><span>Back</span><span style="color:var(--mute)">◀ button or ‹ in apps</span></div>
+ <div class="row"><span>Quick settings</span><span style="color:var(--mute)">Tap the status bar</span></div>`}
+
+const Q=[['wifi','📶 Wi‑Fi'],['air','✈️ Airplane mode'],['dnd','🌙 Do not disturb'],['dark','🌗 Dark mode']];
+function tilesOld(){$('tiles').innerHTML=Q.map(([k,l])=>`<button class="tile ${S[k]?'on':''}" data-k="${k}">${l}<br><small>${S[k]?'On':'Off'}</small></button>`).join('');
+ $('tiles').querySelectorAll('.tile').forEach(b=>b.onclick=()=>{const k=b.dataset.k;S[k]=!S[k];if(k==='air'&&S.air)S.wifi=false;if(k==='dark'){store.set('dark',S.dark);theme()}icons();tiles()})}
+function iconsOld(){$('sicons').textContent=(S.air?'✈️ ':'')+(S.dnd?'🌙 ':'')+(S.wifi?'📶 ':'')+'🔋'}
+const H=s=>{let h=5381;for(const c of 'ev'+s)h=((h*33)^c.charCodeAt(0))>>>0;return h.toString(36)};
+const NL=()=>({type:'none',h:'',len:0,face:false,fp:false});
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),3200)}
+function unlockNow(){locked=false;$('lock').style.transform='';$('auth').classList.remove('on');$('lock').classList.add('off')}
+function bad(el,m){el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake');try{navigator.vibrate&&navigator.vibrate(80)}catch(e){}$('asub').textContent=m}
+function padEl(keys,fn){const p=document.createElement('div');p.className='pad';keys.forEach(k=>{const b=document.createElement('button');b.textContent=k;if(!k)b.style.visibility='hidden';else b.onclick=()=>fn(k);p.appendChild(b)});return p}
+function patternPad(c,cb){c.innerHTML='<div class="pat">'+'<i></i>'.repeat(9)+'</div>';const g=c.firstChild,d=[...g.children];let seq=[],down=false;
+ const hit=e=>{const t=document.elementFromPoint(e.clientX,e.clientY),i=d.indexOf(t);if(i>-1&&!seq.includes(i)){seq.push(i);t.classList.add('on')}};
+ g.onpointerdown=e=>{down=true;seq=[];d.forEach(x=>x.classList.remove('on'));g.setPointerCapture(e.pointerId);hit(e)};
+ g.onpointermove=e=>{if(down)hit(e)};
+ g.onpointerup=()=>{if(!down)return;down=false;const s=seq.join('');setTimeout(()=>d.forEach(x=>x.classList.remove('on')),300);cb(seq.length>=4?s:null)}}
+function bioOld(k){$('abox').innerHTML='<div class="scan">'+(k==='face'?'😀':'👆')+'</div>';$('asub').textContent=k==='face'?'Looking for your face…':'Hold your finger on the sensor…';setTimeout(unlockNow,1200)}
+function showAuth(mode){emOpen=false;const a=$('auth'),L=S.lock;a.classList.add('on');if(mode==='emerg')return emerg(a);
+ a.innerHTML='<button class="btn" id="acx" style="position:absolute;top:50px;left:16px;height:38px;background:#ffffff1f;color:#fff">Cancel</button><h2>'+({pin:'Enter PIN',password:'Enter password',pattern:'Draw your pattern'}[L.type])+'</h2><div class="sub" id="asub"></div><div id="abox" style="display:flex;flex-direction:column;align-items:center;gap:16px;width:100%"></div><div class="lk" id="alk"></div>';
+ $('acx').onclick=()=>a.classList.remove('on');
+ const box=$('abox'),ok=v=>H(v)===L.h;
+ if(L.type==='pin'){let v='';box.innerHTML='<div class="dots" id="dd"></div>';const dd=$('dd'),up=()=>dd.innerHTML=Array.from({length:L.len},(_,i)=>'<i class="'+(i<v.length?'f':'')+'"></i>').join('');up();
+  box.appendChild(padEl(['1','2','3','4','5','6','7','8','9','','0','⌫'],k=>{if(k==='⌫')v=v.slice(0,-1);else if(v.length<L.len)v+=k;up();if(v.length===L.len){if(ok(v))unlockNow();else{v='';bad(dd,'Wrong PIN. Try again.');up()}}}))}
+ else if(L.type==='password'){box.innerHTML='<input class="pw" id="pw" type="password" placeholder="Password" autocomplete="off"><button class="btn p" id="pgo">Unlock</button>';const go=()=>{if(ok($('pw').value))unlockNow();else{$('pw').value='';bad($('pw'),'Wrong password.')}};$('pgo').onclick=go;$('pw').onkeydown=e=>{if(e.key==='Enter')go()};setTimeout(()=>$('pw').focus(),350)}
+ else patternPad(box,s=>{if(!s)bad(box,'Connect at least 4 dots.');else if(ok(s))unlockNow();else bad(box,'Wrong pattern.')});
+ const lk=$('alk'),add=(t,f)=>{const b=document.createElement('button');b.className='btn';b.textContent=t;b.style.cssText='background:#ffffff1f;color:#fff';b.onclick=f;lk.appendChild(b)};
+ if(L.face)add('😀 Face',()=>bio('face'));if(L.fp)add('👆 Fingerprint',()=>bio('fp'));add('🚨 Emergency',()=>emerg(a))}
+function emerg(a){let v='';emOpen=true;a.classList.add('on');a.innerHTML='<h2>Emergency</h2><div class="sub" id="asub">Dial an emergency number</div><div id="ev" style="font-size:30px;font-weight:800;letter-spacing:2px;height:40px;max-width:100%;overflow:hidden;white-space:nowrap"></div><div id="ep"></div><div style="display:flex;gap:10px"><button class="btn" id="ebk">Back</button><button class="btn" id="eer">⌫</button><button class="btn p" id="ecall">Call</button></div>';
+ const sh=()=>$('ev').textContent=v;
+ $('ep').appendChild(padEl(['1','2','3','4','5','6','7','8','9','*','0','#'],k=>{if(v.length<20)v+=k;sh()}));
+ $('eer').onclick=()=>{v=v.slice(0,-1);sh()};
+ $('ebk').onclick=()=>{if(S.lock.type==='none')a.classList.remove('on');else showAuth('main')};
+ $('ecall').onclick=()=>{if(v==='##911##911##'){S.lock=NL();store.set('lock',S.lock);unlockNow();toast('Recovery code accepted. Screen lock removed. Set a new one in Security.')}
+  else if(['911','112','999','199'].includes(v))$('asub').textContent='Calling '+v+' (simulated, no call is placed)';
+  else $('asub').textContent='Only emergency numbers can be dialed here'}}
+function security(el){const save=()=>store.set('lock',S.lock);
+ const draw=()=>{subBack=null;const L=S.lock,T={none:'None',pin:'PIN',password:'Password',pattern:'Pattern'};el.innerHTML=`<div class="row" style="flex-direction:column;align-items:stretch;gap:12px"><span>Screen lock</span><div class="seg" id="sg">${Object.keys(T).map(t=>`<button data-t="${t}" class="${L.type==t?'on':''}">${T[t]}</button>`).join('')}</div><div id="setup"></div></div><div class="row"><span>Face unlock</span><button class="btn" id="bf">${L.face?'On':'Set up'}</button></div><div class="row"><span>Fingerprint${L.fp?'<br><small style="color:var(--mute)">'+FN[L.fp]+' enrolled</small>':''}</span><button class="btn" id="bp">${L.fp?'Remove':'Set up'}</button></div><div id="fps" style="padding:0 6px 10px"></div><p style="color:var(--mute);font-size:14px;line-height:1.5;padding:4px 6px">Face and fingerprint need a PIN, password or pattern as backup. Forgot your lock? Open Emergency on the lock screen and dial your recovery code.</p>`;
+  el.querySelectorAll('#sg button').forEach(b=>b.onclick=()=>{const t=b.dataset.t;if(t==='none'){S.lock=NL();save();toast('Screen lock removed');draw()}else setup(t)});
+  $('bf').onclick=()=>bioSet('face');$('bp').onclick=()=>bioSet('fp')};
+ const bioSet=k=>{const L=S.lock;if(L.type==='none'){toast('Set a PIN, password or pattern first');return}
+  if(L[k]){L[k]=false;save();draw();return}
+  if(k==='fp'){subBack=()=>draw();enrollFp($('fps'),f=>{L.fp=f;save();toast(FN[f]+' enrolled');draw()});return}
+  toast('Face unlock is not available in a browser. Use the phone fingerprint instead.')};
+ const setup=t=>{subBack=()=>draw();const s=$('setup'),L=S.lock;
+  if(t==='pattern'){let first=null;s.innerHTML='<div id="ph" style="font-size:14px;color:var(--mute)">Draw a pattern with at least 4 dots</div><div id="pp" style="display:flex;justify-content:center"></div>';
+   patternPad($('pp'),p=>{if(!p){$('ph').textContent='Connect at least 4 dots';return}
+    if(!first){first=p;$('ph').textContent='Draw it again to confirm';return}
+    if(first!==p){first=null;$('ph').textContent='Patterns did not match. Start again';return}
+    S.lock={type:'pattern',h:H(p),len:0,face:L.face,fp:L.fp};save();toast('Pattern saved');draw()});return}
+  const pin=t==='pin',at=pin?'inputmode="numeric" maxlength="8"':'';
+  s.innerHTML=`<input class="in" id="p1" type="password" ${at} placeholder="${pin?'New PIN (4 to 8 digits)':'New password (4+ characters)'}" style="width:100%;margin-bottom:8px"><input class="in" id="p2" type="password" ${at} placeholder="Confirm" style="width:100%;margin-bottom:8px"><button class="btn p" id="pv">Save ${pin?'PIN':'password'}</button><div id="pe" style="color:var(--acc);font-size:14px;margin-top:6px"></div>`;
+  $('pv').onclick=()=>{const a=$('p1').value,b=$('p2').value,e=$('pe');
+   if(pin?!/^\d{4,8}$/.test(a):a.length<4){e.textContent=pin?'Use 4 to 8 digits.':'Use at least 4 characters.';return}
+   if(a!==b){e.textContent='Entries do not match.';return}
+   S.lock={type:t,h:H(a),len:pin?a.length:0,face:L.face,fp:L.fp};save();toast((pin?'PIN':'Password')+' saved');draw()}};
+ draw()}
+let subBack=null,emOpen=false;
+if(S.lock.fp&&S.lock.fp!=='device'||S.lock.face){S.lock.fp=S.lock.fp==='device'?'device':false;S.lock.face=false;store.set('lock',S.lock)}
+const HANDS=['Left','Right'],FING=['thumb','index','middle','ring','little'],FN={};HANDS.forEach(h=>FING.forEach(f=>FN[h+'-'+f]=h+' '+f));
+function fingers(c,cb){c.className='fing';c.innerHTML=HANDS.map(h=>'<b>'+h+' hand</b>'+FING.map(f=>'<button data-f="'+h+'-'+f+'">'+f+'</button>').join('')).join('');c.querySelectorAll('button').forEach(b=>b.onclick=()=>cb(b.dataset.f))}
+function enrollFpOld(el,done){el.innerHTML='<div style="font-size:14px;color:var(--mute);margin:6px 0 8px">Choose the finger to enroll</div><div id="fg"></div>';
+ fingers($('fg'),f=>{let n=0;el.innerHTML='<div id="fh" style="font-size:14px;color:var(--mute);text-align:center;margin:6px 0">Tap the sensor with your '+FN[f].toLowerCase()+'. Lift and place it again each time.</div><div style="display:flex;flex-direction:column;align-items:center;gap:8px"><div class="scan" id="sc" style="animation:none;cursor:pointer">👆</div><b id="fc">0 of 3 captured</b></div>';
+  $('sc').onclick=()=>{n++;$('fc').textContent=n+' of 3 captured';if(n>=3)setTimeout(()=>done(f),300)}})}
+function bio(k){const box=$('abox');
+ if(k==='face'){box.innerHTML='<div class="scan">😀</div>';$('asub').textContent='Looking for your face…';setTimeout(unlockNow,1200);return}
+ realFp();return;
+ $('asub').textContent='Touch the sensor with your enrolled finger';
+ box.innerHTML='<div class="scan" style="animation:none">👆</div><div id="fg"></div><button class="btn" id="bk2" style="background:#ffffff1f;color:#fff">Use screen lock instead</button>';
+ fingers($('fg'),f=>{$('asub').textContent='Scanning…';setTimeout(()=>{if(f===S.lock.fp)unlockNow();else bad($('fg'),'Fingerprint not recognized. Use the finger you enrolled.')},700)});
+ $('bk2').onclick=()=>showAuth('main')}
+function goBack(){if($('drawer').classList.contains('on')){$('drawer').classList.remove('on');return}
+ if($('shade').classList.contains('on')){$('shade').classList.remove('on');return}
+ if($('auth').classList.contains('on')){if(emOpen&&S.lock.type!=='none')showAuth('main');else $('auth').classList.remove('on');return}
+ if(LC){closeLC();return}if(locked)return;
+ if(subBack){subBack();return}
+ if(open)goHome()}
+$('backbtn').onclick=goBack;$('abk').onclick=goBack;
+function startUnlock(){if(S.lock.type==='none')pinSetup();else showAuth('main')}
+(function(){const L=$('lock');let y0=null,dy=0;const idle=()=>locked&&!$('auth').classList.contains('on');
+ L.onpointerdown=e=>{if(!idle())return;y0=e.clientY;dy=0;L.style.transition='none';L.setPointerCapture(e.pointerId)};
+ L.onpointermove=e=>{if(y0===null)return;dy=Math.min(0,e.clientY-y0);L.style.transform='translateY('+dy*0.6+'px)'};
+ L.onpointerup=L.onpointercancel=()=>{if(y0===null)return;y0=null;L.style.transition='';L.style.transform='';if(dy<-90)startUnlock()};
+ L.addEventListener('wheel',e=>{if(e.deltaY>40&&idle())startUnlock()},{passive:true});
+ document.addEventListener('keydown',e=>{if((e.key==='ArrowUp'||e.key==='Enter')&&idle()&&!/INPUT|TEXTAREA/.test(document.activeElement.tagName))startUnlock()})})();
+function pinSetup(){const a=$('auth');emOpen=false;a.classList.add('on');let v='',first=null;
+ a.innerHTML='<button class="btn" id="acx" style="position:absolute;top:50px;left:16px;height:38px;background:#ffffff1f;color:#fff">Cancel</button><h2 id="pt">Create a PIN</h2><div class="sub" id="asub">Choose 4 to 8 digits. You need it to unlock your phone.</div><div class="dots" id="dd"></div><div id="abox" style="display:flex;flex-direction:column;align-items:center;gap:16px;width:100%"></div>';
+ $('acx').onclick=()=>a.classList.remove('on');
+ const dd=$('dd'),box=$('abox'),up=()=>dd.innerHTML=Array.from({length:v.length},()=>'<i class="f"></i>').join('');
+ box.appendChild(padEl(['1','2','3','4','5','6','7','8','9','','0','⌫'],k=>{if(k==='⌫')v=v.slice(0,-1);else if(v.length<8)v+=k;up()}));
+ const b=document.createElement('button');b.className='btn p';b.textContent='Continue';box.appendChild(b);
+ b.onclick=()=>{if(v.length<4){bad(dd,'Use at least 4 digits.');return}
+  if(!first){first=v;v='';up();$('pt').textContent='Confirm your PIN';$('asub').textContent='Enter the same PIN again';b.textContent='Save PIN';return}
+  if(first!==v){first=null;v='';up();$('pt').textContent='Create a PIN';b.textContent='Continue';bad(dd,'PINs did not match. Start again.');return}
+  S.lock={type:'pin',h:H(v),len:v.length,face:false,fp:false};store.set('lock',S.lock);toast('PIN set. Use it to unlock.');unlockNow()}}
+let FILES=[],idb=null;
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6),esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])),EMO=['🧩','🎮','🧪','🚀','🎨','📊','🔧','🎵'],COL=['#ffadad','#caffbf','#bdb2ff','#ffd6a5','#9bf6ff','#fdffb6'];
+try{const r=indexedDB.open('everest',1);r.onupgradeneeded=()=>r.result.createObjectStore('f',{keyPath:'id'});r.onsuccess=()=>{idb=r.result;const q=idb.transaction('f').objectStore('f').getAll();q.onsuccess=()=>{FILES=q.result;renderUser()}}}catch(e){}
+const fsPut=r=>{FILES.push(r);try{idb&&idb.transaction('f','readwrite').objectStore('f').put(r)}catch(e){}};
+const fsDel=id=>{FILES=FILES.filter(f=>f.id!==id);try{idb&&idb.transaction('f','readwrite').objectStore('f').delete(id)}catch(e){}};
+function renderUser0(){for(let i=APPS.length-1;i>=0;i--)if(APPS[i].u)APPS.splice(i,1);
+ FILES.filter(f=>f.app).forEach(f=>APPS.push({id:'u'+f.id,n:f.name.slice(0,12),i:f.icon,c:f.color,u:1,r:el=>runApp(el,f)}));
+ document.querySelectorAll('.uapp').forEach(x=>x.remove());
+ APPS.filter(a=>a.u).forEach(a=>{const d=document.createElement('div');d.innerHTML=tile(a);const b=d.firstChild;b.classList.add('uapp');b.onclick=()=>launch(a.id);$('grid').appendChild(b)})}
+function runApp(el,rec){el.style.cssText='padding:0 0 70px;display:flex';const fr=document.createElement('iframe');fr.sandbox='allow-scripts allow-forms allow-modals';fr.srcdoc=rec.html;fr.style.cssText='flex:1;border:0;border-radius:18px;background:#fff';el.appendChild(fr)}
+function files(el){const fmt=n=>n<1024?n+' B':n<1048576?(n/1024).toFixed(0)+' KB':(n/1048576).toFixed(1)+' MB';
+ const ico=f=>f.app?f.icon:/\.apk$/i.test(f.name)?'🤖':/^image/.test(f.type)?'🖼️':/^video/.test(f.type)?'🎞️':/^audio/.test(f.type)?'🎵':/pdf/.test(f.type)?'📕':/^text|json|csv|xml/.test(f.type)?'📄':'📦';
+ const draw=()=>{subBack=null;$('apptitle').textContent='Files';
+  el.innerHTML='<div style="display:flex;gap:8px;margin-bottom:12px"><button class="btn p" id="fa" style="flex:1">+ Add files</button><button class="btn" id="fi" style="flex:1">+ Add app</button></div><div style="display:flex;gap:8px;margin-bottom:10px"><button class="btn" id="ff" style="flex:1">+ Add folder</button><input class="in" id="fq" placeholder="Search files" style="flex:1;min-width:0"></div><div class="seg" id="fc" style="margin-bottom:12px"></div><input type="file" id="fin" multiple hidden><input type="file" id="fdir" webkitdirectory multiple hidden><input type="file" id="fap" accept=".html,.htm,text/html" hidden><div id="fl"></div><p style="color:var(--mute);font-size:13px;line-height:1.5;padding:8px 4px">Files are stored on this device, in your browser. Apps must be single HTML files (web apps) and run in a sandbox. APK files can be stored under APKs but cannot run.</p>';
+  const L=FILES.filter(f=>FQ.c==='All'||catOf(f)===FQ.c).sort((a,b)=>b.added-a.added);
+  $('fl').innerHTML=L.length?L.map(f=>'<div class="row" data-id="'+f.id+'" data-n="'+esc(f.name.toLowerCase()).replace(/"/g,'')+'"><span style="display:flex;gap:10px;align-items:center;min-width:0"><span style="font-size:24px">'+ico(f)+'</span><span style="min-width:0"><div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:190px">'+esc(f.name)+'</div><small style="color:var(--mute)">'+(f.app?'App':(f.path?esc(f.path.split('/').slice(0,-1).join('/'))+' · ':'')+fmt(f.size))+'</small></span></span><span data-x="1" style="padding:8px;cursor:pointer" aria-label="Delete">✕</span></div>').join(''):'<p style="color:var(--mute);padding:8px 4px">No files yet. Add photos, documents or app files from your phone.</p>';
+  $('fa').onclick=()=>$('fin').click();$('fi').onclick=()=>$('fap').click();$('ff').onclick=()=>$('fdir').click();
+  $('fdir').onchange=e=>{const fl=[...e.target.files];fl.forEach(f=>fsPut({id:uid(),name:f.name,path:f.webkitRelativePath||'',type:f.type||'',size:f.size,blob:f,added:Date.now()}));if(fl.length)toast(fl.length+' files imported');draw()};
+  $('fc').innerHTML=['All','Photos','Videos','Audio','Docs','Apps','APKs'].map(c=>`<button data-c='${c}' class='${FQ.c===c?'on':''}'>${c}</button>`).join('');
+  $('fc').querySelectorAll('button').forEach(b=>b.onclick=()=>{FQ.c=b.dataset.c;draw()});
+  const flt=()=>{const q=FQ.q.toLowerCase();el.querySelectorAll('#fl .row').forEach(r=>r.style.display=r.dataset.n.includes(q)?'':'none')};$('fq').value=FQ.q;$('fq').oninput=e=>{FQ.q=e.target.value;flt()};flt();
+  $('fin').onchange=e=>{const fl=[...e.target.files];fl.forEach(f=>fsPut({id:uid(),name:f.name,type:f.type||'',size:f.size,blob:f,added:Date.now()}));if(fl.length)toast(fl.length+' file'+(fl.length>1?'s':'')+' added');draw()};
+  $('fap').onchange=async e=>{const f=e.target.files[0];if(!f)return;const h=await f.text(),n=FILES.length;fsPut({id:uid(),name:f.name.replace(/\.[^.]+$/,''),type:'text/html',size:f.size,html:h,app:true,icon:EMO[n%8],color:COL[n%6],added:Date.now()});renderUser();toast('App installed. Find it on the home screen.');draw()};
+  el.querySelectorAll('#fl .row').forEach(r=>r.onclick=e=>{const id=r.dataset.id;if(e.target.dataset.x){fsDel(id);renderUser();draw();return}view(FILES.find(f=>f.id===id))})};
+ const view=f=>{if(f.app){launch('u'+f.id);return}
+   if(/\.apk$/i.test(f.name)){subBack=draw;$('apptitle').textContent=f.name.slice(0,16);el.innerHTML='<div class="row" style="flex-direction:column;align-items:flex-start;gap:8px"><b>🤖 Android package</b><span style="color:var(--mute);line-height:1.5">'+esc(f.name)+' ('+fmt(f.size)+'). It is stored safely on this device, but EVEREST is not an Android runtime, so it cannot install or run APK files.</span><small id="hh" style="color:var(--mute);word-break:break-all">Checking SHA-256…</small></div>';f.blob.arrayBuffer().then(b=>crypto.subtle.digest('SHA-256',b)).then(d=>{$('hh').textContent='SHA-256: '+[...new Uint8Array(d)].map(x=>x.toString(16).padStart(2,'0')).join('')}).catch(()=>{$('hh').textContent=''});return}
+  subBack=draw;$('apptitle').textContent=f.name.slice(0,16);const u=URL.createObjectURL(f.blob),t=f.type||'';let h='';
+  if(/^image/.test(t))h='<img src="'+u+'" style="max-width:100%;border-radius:18px">';
+  else if(/^video/.test(t))h='<video src="'+u+'" controls playsinline style="width:100%;border-radius:18px"></video>';
+  else if(/^audio/.test(t))h='<audio src="'+u+'" controls style="width:100%"></audio>';
+  else if(/pdf/.test(t))h='<iframe src="'+u+'" style="width:100%;height:480px;border:0;border-radius:18px;background:#fff"></iframe>';
+  if(h){el.innerHTML=h;shareBtn(el,f);return}
+  if(/^text|json|xml|csv/.test(t)||/\.(txt|md|csv|json|log)$/i.test(f.name))f.blob.text().then(s=>{el.innerHTML='<pre style="white-space:pre-wrap;word-break:break-word;font-size:14px;background:var(--card);padding:14px;border-radius:18px"></pre>';el.firstChild.textContent=s.slice(0,20000);shareBtn(el,f)});
+  else el.innerHTML='<div class="row"><span>No preview for this file type ('+esc(t||'unknown')+', '+fmt(f.size)+')</span></div>'};
+ draw()}
+let HIDE=store.get('hide',[]),EDIT=false,CUR=null,camMode='',TS=null,WL=null,MR=null,CAMST=null,BAT=null;
+const AUD=new Audio(),NC=navigator.connection||navigator.mozConnection;
+Object.assign(S,{br:1,vol:0.7,carrier:'MTN NG'},store.get('lvl',{}));AUD.volume=S.vol;
+const TI={flash:['🔦','Flashlight'],air:['✈️','Airplane mode'],hot:['📡','Hotspot'],sil:['🔕','Silent mode'],loc:['📍','Location'],rot:['🔄','Lock rotation'],scan:['🔳','Scan QR code'],share:['📤','Share files'],dark:['🌗','Dark mode'],dnd:['🌙','Do not disturb'],auto:['☀️','Auto brightness'],sav:['🔋','Battery saver'],awake:['⚡','Keep screen on'],rec:['⏺️','Screen recorder'],cam:['📷','Camera'],eye:['👁️','Eye comfort']};
+const FQ={q:'',c:'All'},catOf=f=>f.app?'Apps':/\.apk$/i.test(f.name)?'APKs':/^image/.test(f.type)?'Photos':/^video/.test(f.type)?'Videos':/^audio/.test(f.type)?'Audio':'Docs';
+function applyBr(){const b=(S.auto?0.85:S.br)*(S.sav?0.7:1);$('dim').style.opacity=1-b}
+const stopTS=()=>{TS&&TS.getTracks().forEach(t=>t.stop());TS=null};
+const ACT={
+ async flash(){if(window.Android){S.flash=!S.flash;Android.torch(S.flash);return}if(S.flash){stopTS();S.flash=false;return}try{TS=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});await TS.getVideoTracks()[0].applyConstraints({advanced:[{torch:true}]});S.flash=true}catch(e){stopTS();toast(hostBlock('camera')||'Flashlight needs Chrome on Android with a rear camera that supports torch')}},
+ async bt(){if(S.bt){S.bt=false;return}try{const d=await navigator.bluetooth.requestDevice({acceptAllDevices:true});S.bt=true;toast('Bluetooth device: '+(d.name||'unnamed'))}catch(e){toast(navigator.bluetooth?'No Bluetooth device selected':'Bluetooth is not supported in this browser')}},
+ async loc(){if(S.loc){S.loc=false;return}try{const p=await new Promise((r,j)=>navigator.geolocation.getCurrentPosition(r,j,{timeout:8000}));S.loc=true;toast('Location on: '+p.coords.latitude.toFixed(3)+', '+p.coords.longitude.toFixed(3))}catch(e){toast('Location permission was blocked or unavailable')}},
+ sil(){S.sil=!S.sil;AUD.muted=S.sil;try{navigator.vibrate&&navigator.vibrate(60)}catch(e){}},
+ rot(){S.rot=!S.rot;try{if(S.rot)screen.orientation.lock(screen.orientation.type).catch(()=>toast('Rotation lock needs full screen on this browser'));else screen.orientation.unlock()}catch(e){}},
+ async awake(){try{if(S.awake){WL&&WL.release();WL=null;S.awake=false}else{WL=await navigator.wakeLock.request('screen');S.awake=true}}catch(e){toast('Keep screen on is not available here')}},
+ dark(){S.dark=!S.dark;store.set('dark',S.dark);theme()},
+ eye(){S.eye=!S.eye;$('warm').style.opacity=S.eye?0.28:0},
+ sav(){S.sav=!S.sav;applyBr()},auto(){S.auto=!S.auto;applyBr()},
+ scan(){camMode='scan';$('shade').classList.remove('on');launch('cam')},
+ cam(){$('shade').classList.remove('on');launch('cam')},
+ share(){$('shade').classList.remove('on');launch('files')},
+ async rec(){if(S.rec){MR&&MR.stop();return}try{const st=await navigator.mediaDevices.getDisplayMedia({video:true}),ch=[];MR=new MediaRecorder(st);MR.ondataavailable=e=>ch.push(e.data);MR.onstop=()=>{st.getTracks().forEach(t=>t.stop());const b=new Blob(ch,{type:'video/webm'});fsPut({id:uid(),name:'recording-'+Date.now()+'.webm',type:'video/webm',size:b.size,blob:b,added:Date.now()});S.rec=false;toast('Recording saved to Files');tiles()};MR.start();S.rec=true}catch(e){toast('Screen recording is not supported on this browser')}}
+};
+async function run(k){if(k==='wifi'||k==='data'){toast('Browsers cannot switch '+(k==='wifi'?'Wi-Fi':'mobile data')+'. Use your phone settings.');return}
+ if(ACT[k])await ACT[k]();else S[k]=!S[k];
+ if(k==='air')S.wifi=!S.air;icons();tiles()}
+const AQ=()=>FILES.filter(f=>/^audio/.test(f.type));
+function playF(f){CUR=f;AUD.src=URL.createObjectURL(f.blob);AUD.play().catch(()=>{});tiles()}
+function mctl(m){const q=AQ();if(!q.length){toast('Add audio files in Files first');return}const i=q.indexOf(CUR);if(m==='t'){if(!CUR)playF(q[0]);else if(AUD.paused)AUD.play();else AUD.pause()}else playF(q[(i+(m==='n'?1:-1)+q.length)%q.length]);tiles()}
+AUD.onplay=AUD.onpause=()=>tiles();AUD.onended=()=>mctl('n');
+function sliderEl(icon,get,set){const d=document.createElement('div');d.className='sl';d.innerHTML='<i></i><span>'+icon+'</span>';const f=d.firstChild,paint=()=>f.style.height=get()*100+'%';paint();
+ const mv=e=>{const r=d.getBoundingClientRect();set(Math.min(1,Math.max(0,1-(e.clientY-r.top)/r.height)));paint()};
+ d.onpointerdown=e=>{d.setPointerCapture(e.pointerId);d._d=1;mv(e)};d.onpointermove=e=>{if(d._d)mv(e)};d.onpointerup=()=>{d._d=0;store.set('lvl',{br:S.br,vol:S.vol})};return d}
+function tiles(){const c=$('tiles'),o=navigator.onLine,t=NC&&NC.type,wifiOn=o&&!S.air&&(!t||t==='wifi'),np=CUR&&AUD.src?CUR.name:'Not Playing',lab=S.air?'Airplane':o?S.carrier+(NC&&NC.effectiveType?' · '+NC.effectiveType.toUpperCase():''):'Offline';
+ c.className='cc'+(EDIT?' edit':'');
+ c.innerHTML=`<div class='card conn'><button class='rt${wifiOn?' on':''}' data-k='wifi' aria-label='Wi-Fi'>📶</button><button class='rt${S.bt?' on':''}' data-k='bt' aria-label='Bluetooth'>ᛒ</button><button class='pill${o&&!S.air?' g':''}' data-k='data' aria-label='Mobile data'>⇅ <small>${esc(lab)}</small></button></div><div class='card media'><div class='mt'>${esc(np)}</div><div class='mc'><button data-m='p' aria-label='Previous'>⏮</button><button data-m='t' aria-label='Play or pause'>${AUD.paused?'▶':'⏸'}</button><button data-m='n' aria-label='Next'>⏭</button></div></div><div class='card dat'><div class='dot'>🗂️</div><div><b id='stv'>Storage</b><div class='st2'>Used by EVEREST</div></div></div>`;
+ c.appendChild(sliderEl('☀️',()=>S.br,v=>{S.br=Math.max(0.15,v);applyBr()}));c.appendChild(sliderEl('🔊',()=>S.vol,v=>{S.vol=v;AUD.volume=v}));
+ Object.keys(TI).forEach(k=>{const hid=HIDE.includes(k);if(hid&&!EDIT)return;c.insertAdjacentHTML('beforeend',`<button class='rt${S[k]?' on':''}${k==='sav'?' w':''}${hid?' hid':''}' data-k='${k}' aria-label='${TI[k][1]}' title='${TI[k][1]}'>${TI[k][0]}</button>`)});
+ try{navigator.storage.estimate().then(e=>{const s=$('stv');if(s)s.textContent=(e.usage/1e9).toFixed(2)+' / '+(e.quota/1e9).toFixed(0)+' GB'})}catch(x){}}
+function icons(){const b=BAT?' '+Math.round(BAT.level*100)+'%'+(BAT.charging?'⚡':''):'';$('sicons').textContent=(S.air?'✈️ ':'')+(S.sil?'🔕 ':'')+(S.dnd?'🌙 ':'')+(S.bt?'ᛒ ':'')+(S.wifi&&!S.air?'📶 ':'')+'🔋'+b}
+function shareBtn(el,f){const b=document.createElement('button');b.className='btn';b.style.marginTop='12px';b.textContent='Share';b.onclick=async()=>{try{const file=new File([f.blob],f.name,{type:f.type});if(navigator.canShare&&navigator.canShare({files:[file]}))await navigator.share({files:[file]});else toast('Sharing files is not supported here')}catch(e){}};el.appendChild(b)}
+function camApp(el){el.style.cssText='padding:0 0 80px;display:flex;flex-direction:column;gap:10px';
+ el.innerHTML=`<video id='cv' autoplay playsinline muted style='flex:1;width:100%;border-radius:22px;background:#000;object-fit:cover;min-height:0'></video><div id='cr' style='text-align:center;font-size:14px;color:var(--mute);min-height:20px'></div><div style='display:flex;gap:10px;justify-content:center'><button class='btn' id='cf'>Flip</button><button class='btn p' id='cs'>Take photo</button></div>`;
+ let face='environment',st=null;
+ const start=async()=>{try{st&&st.getTracks().forEach(t=>t.stop());st=await navigator.mediaDevices.getUserMedia({video:{facingMode:face}});CAMST=st;$('cv').srcObject=st}catch(e){$('cr').textContent=hostBlock('camera')||'Camera permission is blocked or unavailable. Check the browser camera permission for this page.'}};
+ $('cf').onclick=()=>{face=face==='user'?'environment':'user';start()};
+ $('cs').onclick=()=>{const v=$('cv');if(!v.videoWidth)return;const c=document.createElement('canvas');c.width=v.videoWidth;c.height=v.videoHeight;c.getContext('2d').drawImage(v,0,0);c.toBlob(b=>{fsPut({id:uid(),name:'photo-'+Date.now()+'.jpg',type:'image/jpeg',size:b.size,blob:b,added:Date.now()});toast('Photo saved to Files')},'image/jpeg',0.92)};
+ start();
+ if(camMode==='scan'){camMode='';if(!('BarcodeDetector' in window)){$('cr').textContent='QR scanning is not supported in this browser.';return}const bd=new BarcodeDetector({formats:['qr_code']});$('cr').textContent='Point the camera at a QR code';const loop=async()=>{const v=$('cv');if(!v)return;try{const r=await bd.detect(v);if(r.length){$('cr').textContent='QR code: '+r[0].rawValue;return}}catch(e){}requestAnimationFrame(loop)};setTimeout(loop,900)}}
+$('tiles').onclick=e=>{const b=e.target.closest('[data-k],[data-m]');if(!b)return;if(b.dataset.m){mctl(b.dataset.m);return}const k=b.dataset.k;if(EDIT){if(TI[k]){HIDE=HIDE.includes(k)?HIDE.filter(x=>x!==k):[...HIDE,k];store.set('hide',HIDE);tiles()}return}run(k)};
+$('ccset').onclick=()=>{$('shade').classList.remove('on');launch('settings')};$('ccedit').onclick=()=>{EDIT=!EDIT;if(EDIT)toast('Tap a tile to hide or show it');tiles()};
+['online','offline'].forEach(ev=>addEventListener(ev,()=>{tiles();icons()}));try{NC&&NC.addEventListener('change',tiles)}catch(e){}
+try{navigator.getBattery&&navigator.getBattery().then(b=>{BAT=b;['levelchange','chargingchange'].forEach(ev=>b.addEventListener(ev,icons));icons()})}catch(e){}
+applyBr();
+let LINKS=store.get('links',[]),CONT=store.get('contacts',[]);
+const openLink=u=>{const a=document.createElement('a');a.href=u;a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();a.remove();toast('Opening '+u.slice(0,40)+'. If nothing opens, your browser blocked the link.')};
+function renderUser(){renderUser0();LINKS.forEach((l,i)=>{const d=document.createElement('div');d.innerHTML=tile({id:'l'+i,n:l.n.slice(0,12),i:l.i,c:l.c});const b=d.firstChild;b.classList.add('uapp');b.onclick=()=>openLink(l.u);$('grid').appendChild(b)})}
+function linkApp(el){const P=[['Phone','tel:','📞'],['Messages','sms:','💬'],['WhatsApp','https://wa.me/','🟢'],['Maps','https://maps.google.com','🗺️'],['Play Store','https://play.google.com/store','▶️'],['Gmail','mailto:','✉️'],['YouTube','https://youtube.com','📺']],CL=['#ffadad','#caffbf','#bdb2ff','#ffd6a5','#9bf6ff','#fdffb6'];let ic='';
+ const draw=()=>{el.innerHTML='<div class="row" style="flex-direction:column;align-items:stretch;gap:10px"><span>Add an app shortcut</span><div class="seg" id="pr"></div><input class="in" id="ln" placeholder="Name" style="width:100%"><input class="in" id="lu" placeholder="Link, for example https://wa.me/ or tel:" style="width:100%"><button class="btn p" id="la">Add to home screen</button></div><p style="color:var(--mute);font-size:13px;line-height:1.5;padding:2px 6px 12px">A shortcut opens the real app on your phone through its link, when the app supports one.</p><div id="ls"></div><div class="row" style="margin-top:6px"><span>Contacts</span><button class="btn" id="ci">Import</button></div><div id="cl"></div>';
+  $('pr').innerHTML=P.map((p,i)=>'<button data-i="'+i+'">'+p[2]+' '+p[0]+'</button>').join('');
+  $('pr').querySelectorAll('button').forEach(b=>b.onclick=()=>{const p=P[b.dataset.i];$('ln').value=p[0];$('lu').value=p[1];ic=p[2]});
+  $('la').onclick=()=>{const n=$('ln').value.trim(),u=$('lu').value.trim();if(!n||!u){toast('Enter a name and a link');return}LINKS.push({n,u,i:ic||'🔗',c:CL[LINKS.length%6]});store.set('links',LINKS);renderUser();toast(n+' added to the home screen');ic='';draw()};
+  $('ls').innerHTML=LINKS.map((l,i)=>'<div class="row" data-i="'+i+'"><span>'+l.i+' '+esc(l.n)+'</span><span data-x="1" style="padding:8px;cursor:pointer">✕</span></div>').join('');
+  $('ls').querySelectorAll('.row').forEach(r=>r.onclick=e=>{const i=+r.dataset.i;if(e.target.dataset.x){LINKS.splice(i,1);store.set('links',LINKS);renderUser();draw()}else openLink(LINKS[i].u)});
+  $('cl').innerHTML=CONT.map((c,i)=>'<div class="row" data-i="'+i+'"><span>'+esc(c.n)+'<br><small style="color:var(--mute)">'+esc(c.t)+'</small></span><span data-x="1" style="padding:8px;cursor:pointer">✕</span></div>').join('');
+  $('cl').querySelectorAll('.row').forEach(r=>r.onclick=e=>{const i=+r.dataset.i;if(e.target.dataset.x){CONT.splice(i,1);store.set('contacts',CONT);draw()}else openLink('tel:'+CONT[i].t)});
+  $('ci').onclick=()=>{if(!('contacts' in navigator)){toast('Contact import is not supported in this browser');return}navigator.contacts.select(['name','tel'],{multiple:true}).then(r=>{r.forEach(c=>{const n=(c.name||[])[0]||'Unnamed',t=(c.tel||[])[0]||'';if(t&&!CONT.some(x=>x.t===t))CONT.push({n,t})});store.set('contacts',CONT);draw()}).catch(()=>{})}};
+ draw()}
+renderUser();
+let LC=false;
+function closeLC(){LC=false;try{CAMST&&CAMST.getTracks().forEach(t=>t.stop())}catch(e){}open=null;$('appwin').classList.remove('on');$('status').classList.remove('dk');setTimeout(()=>$('appwin').style.zIndex='',300)}
+$('lkt').onpointerdown=$('lkc').onpointerdown=e=>e.stopPropagation();
+$('lkt').onclick=async()=>{await ACT.flash();$('lkt').classList.toggle('on',!!S.flash)};
+$('lkc').onclick=()=>{LC=true;$('appwin').style.zIndex=46;launch('cam')};
+FN.device='Phone fingerprint';
+const b64=b=>btoa(String.fromCharCode(...new Uint8Array(b))),ub64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+async function realEnroll(){const c=await navigator.credentials.create({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),rp:{name:'EVEREST'},user:{id:crypto.getRandomValues(new Uint8Array(16)),name:'owner',displayName:'EVEREST owner'},pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],authenticatorSelection:{authenticatorAttachment:'platform',userVerification:'required',residentKey:'discouraged'},timeout:60000}});store.set('fpcred',b64(c.rawId));return 'device'}
+async function realFp(){$('abox').innerHTML='<div class="scan">👆</div>';$('asub').textContent='Use your phone fingerprint sensor';
+ try{await navigator.credentials.get({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),allowCredentials:[{type:'public-key',id:ub64(store.get('fpcred','')),transports:['internal']}],userVerification:'required',timeout:60000}});unlockNow()}
+ catch(e){$('asub').textContent='Fingerprint not recognized';$('abox').innerHTML='<button class="btn" id="bk2" style="background:#ffffff1f;color:#fff">Use screen lock instead</button>';$('bk2').onclick=()=>showAuth('main')}}
+function enrollFp(el,done){
+ const intro=()=>{el.innerHTML='<div style="text-align:center;padding:6px 0"><div style="font-size:44px">👆</div><b>Set up fingerprint</b><p style="font-size:13px;color:var(--mute);line-height:1.5;margin:6px 0 12px">Use the fingerprint already saved on your phone, or practice the enrollment here.</p></div><button class="btn p" id="e1" style="width:100%;margin-bottom:8px">Use my phone fingerprint</button><button class="btn" id="e2" style="width:100%">Practice enrollment</button><div id="ee" style="color:var(--acc);font-size:13px;margin-top:8px"></div>';
+  $('e1').onclick=async()=>{try{done(await realEnroll())}catch(e){$('ee').textContent='This browser or page blocked access to your phone fingerprint. Use practice enrollment instead.'}};$('e2').onclick=pick};
+ const pick=()=>{el.innerHTML='<div style="font-size:14px;color:var(--mute);margin:6px 0 8px">Which finger will you scan?</div><div id="fg"></div>';fingers($('fg'),capture)};
+ const capture=f=>{let n=0,t=null,held=false;const N=12,msg=()=>n<8?'Touch and hold the sensor, then lift':n<N?'Now touch with the edges of your finger':'';
+  el.innerHTML='<div style="text-align:center"><div id="rg" style="width:150px;height:150px;border-radius:50%;margin:8px auto;display:grid;place-items:center"><div id="sc" style="width:126px;height:126px;border-radius:50%;background:var(--panel);display:grid;place-items:center;font-size:54px;cursor:pointer;touch-action:none;user-select:none">👆</div></div><b id="fpp">0%</b><div id="fh" style="font-size:14px;color:var(--mute);margin-top:4px;min-height:20px"></div></div>';
+  const ring=()=>{const p=Math.round(n/N*100);$('rg').style.background='conic-gradient(var(--acc) '+p+'%,var(--card) 0)';$('fpp').textContent=p+'%';$('fh').textContent=msg()};ring();
+  const sc=$('sc');
+  sc.onpointerdown=e=>{held=true;sc.setPointerCapture(e.pointerId);sc.style.transform='scale(.95)';t=setTimeout(()=>{t=null;if(!held)return;n++;try{navigator.vibrate&&navigator.vibrate(40)}catch(x){}ring();
+   if(n>=N){el.innerHTML='<div style="text-align:center;padding:14px"><div style="font-size:54px">✅</div><b>Fingerprint added</b><p style="font-size:13px;color:var(--mute);margin:6px 0 12px">You can now use your '+FN[f].toLowerCase()+' to unlock your phone.</p><button class="btn p" id="ed">Done</button></div>';$('ed').onclick=()=>done(f)}else $('fh').textContent='Lift your finger'},450)};
+  sc.onpointerup=sc.onpointercancel=()=>{held=false;sc.style.transform='';if(t){clearTimeout(t);t=null;$('fh').textContent='Hold a little longer'}else if(n<N&&n>0)$('fh').textContent=msg()}};
+ intro()}
+try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',e=>{if(store.get('dark',null)===null){S.dark=e.matches;theme()}})}catch(e){}
+$('notifs').innerHTML='<div class="row" style="background:#ffffff18;color:#fff"><span>Welcome to EVEREST. Open an app to begin.</span></div>';
+
+const b64u=b=>btoa(String.fromCharCode(...new Uint8Array(b))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+async function fpAvail(){try{return !!(window.PublicKeyCredential&&await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable())}catch(e){return false}}
+function fpErr(e){const n=e&&e.name,hb=hostBlock('publickey-credentials-get')||hostBlock('publickey-credentials-create');if(hb)return hb;return n==='NotAllowedError'?'Not verified. Touch the sensor with a finger your phone recognizes. You may also have cancelled.':(n==='SecurityError'||n==='NotSupportedError')?'This page is not allowed to use your phone fingerprint here. Open EVEREST directly in Chrome on your phone, not inside another app or preview, and try again.':'Fingerprint check failed ('+(n||'unknown error')+').'}
+async function realEnroll(){
+ if(window.Android)return androidEnroll();
+ if(!await fpAvail())throw {name:'NoSensor'};
+ const c=await navigator.credentials.create({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),rp:{name:'EVEREST'},user:{id:crypto.getRandomValues(new Uint8Array(16)),name:'owner',displayName:'EVEREST owner'},pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],authenticatorSelection:{authenticatorAttachment:'platform',userVerification:'required',residentKey:'discouraged'},attestation:'none',timeout:60000}});
+ try{const ad=new Uint8Array(c.response.getAuthenticatorData());if(!(ad[32]&4))throw {name:'NotVerified'}}catch(e){if(e&&e.name==='NotVerified')throw e}
+ store.set('fpcred',b64(c.rawId));return 'device'}
+async function realFp(){if(window.Android)return androidFp();const box=$('abox');box.innerHTML='<div class="scan">👆</div>';$('asub').textContent='Touch the fingerprint sensor on your phone';
+ const fail=m=>{$('asub').textContent=m;box.innerHTML='<button class="btn p" id="rt">Try again</button><button class="btn" id="bk2" style="background:#ffffff1f;color:#fff">Use screen lock instead</button>';$('rt').onclick=realFp;$('bk2').onclick=()=>showAuth('main')};
+ try{const ch=crypto.getRandomValues(new Uint8Array(32));
+  const r=await navigator.credentials.get({publicKey:{challenge:ch,allowCredentials:[{type:'public-key',id:ub64(store.get('fpcred','')),transports:['internal']}],userVerification:'required',timeout:60000}});
+  const cd=JSON.parse(new TextDecoder().decode(r.response.clientDataJSON)),ad=new Uint8Array(r.response.authenticatorData);
+  if(cd.type!=='webauthn.get'||cd.challenge!==b64u(ch)||!(ad[32]&4))return fail('Fingerprint was not verified.');
+  unlockNow()}catch(e){fail(fpErr(e))}}
+function enrollFp(el,done){
+ el.innerHTML='<div style="text-align:center;padding:6px 0"><div style="font-size:44px">👆</div><b>Phone fingerprint</b><p style="font-size:13px;color:var(--mute);line-height:1.5;margin:6px 0 12px">EVEREST asks your phone to check your fingerprint. The phone does the matching and EVEREST never sees it. Any finger saved in your phone settings will work, so keep only the finger you want saved there.</p></div><button class="btn p" id="e1" style="width:100%">Touch sensor to enroll</button><div id="ee" style="color:var(--acc);font-size:13px;line-height:1.5;margin-top:8px"></div>';
+ $('e1').onclick=async()=>{$('ee').textContent='';try{done(await realEnroll())}catch(e){$('ee').textContent=e&&e.name==='NoSensor'?'No saved fingerprint was found on this phone. Add one in your phone Settings first, then try again.':e&&e.name==='NotVerified'?'The phone did not verify your fingerprint. Try again.':fpErr(e)}}}
+function hostBlock(f){try{const p=document.permissionsPolicy||document.featurePolicy;if(p&&p.allowsFeature&&!p.allowsFeature(f))return 'This page is blocked from using '+(f==='camera'?'the camera and flashlight':'your fingerprint')+' because it is shown inside another page. Open EVEREST on its own in your phone browser (host the file over https) and it will work.'}catch(e){}return ''}
+const LIVE={6:'peaks',7:'galaxy',8:'orbit'},TILT={x:0,y:0,tx:0,ty:0};let G=null,O=null;
+addEventListener('pointermove',e=>{const r=$('phone').getBoundingClientRect();TILT.tx=((e.clientX-r.left)/r.width-.5)*2;TILT.ty=((e.clientY-r.top)/r.height-.5)*2});
+addEventListener('deviceorientation',e=>{if(e.gamma!=null){TILT.tx=Math.max(-1,Math.min(1,e.gamma/30));TILT.ty=Math.max(-1,Math.min(1,((e.beta||0)-45)/30))}});
+const V=(x,y,z,a,b,w,h,d,f)=>{let c=Math.cos(a),s=Math.sin(a);const X=x*c+z*s,Z=-x*s+z*c;c=Math.cos(b);s=Math.sin(b);const Q=y*s+Z*c+d,k=f/Q;return[w/2+X*k,h/2-(y*c-Z*s)*k,Q]};
+const SC={
+ peaks(g,w,h,t,mx,my){const N=24,f=Math.min(w,h)*1.25,a=t*.12+mx*.9,b=.75+my*.25,hh=(x,z)=>1.9*Math.exp(-(x*x+z*z)*.3)*(.7+.3*Math.abs(Math.sin(x*2.2+z*1.6)))+.18*Math.sin(x*1.7)*Math.cos(z*1.3),P=[];
+  for(let i=0;i<=N;i++){P[i]=[];for(let j=0;j<=N;j++){const x=(i/N-.5)*7,z=(j/N-.5)*7,y=hh(x,z)-.6;P[i][j]=[V(x,y,z,a,b,w,h,9,f),y+.6]}}
+  g.lineWidth=Math.max(1,w/380);
+  for(let i=0;i<=N;i++)for(let j=0;j<=N;j++)for(const[di,dj]of[[1,0],[0,1]]){const p=P[i][j],q=P[i+di]&&P[i+di][j+dj];if(!q)continue;const n=Math.min(1,(p[1]+q[1])/4.4);g.strokeStyle='rgba('+(100+155*n|0)+','+(170+85*n|0)+',255,'+(.2+.5*n)+')';g.beginPath();g.moveTo(p[0][0],p[0][1]);g.lineTo(q[0][0],q[0][1]);g.stroke()}
+  const pk=V(0,hh(0,0)-.6,0,a,b,w,h,9,f);g.fillStyle='#fff';g.beginPath();g.arc(pk[0],pk[1],w/90,0,7);g.fill()},
+ galaxy(g,w,h,t,mx,my){const f=Math.min(w,h)*1.3,a=mx*.8,b=1+my*.4;G=G||Array.from({length:650},(_,i)=>{const r=.15+Math.pow(Math.random(),.7)*3.2;return{r,th:i%3*2.094+r*1.5+(Math.random()-.5)*.5,y:(Math.random()-.5)*.25*(1+.2*r)}});
+  for(const p of G){const th=p.th+t*.35/(.5+p.r),q=V(Math.cos(th)*p.r,p.y,Math.sin(th)*p.r,a,b,w,h,7,f),s=Math.max(1,w/260*7/q[2]),n=Math.min(1,p.r/3.2);g.fillStyle='rgba('+(255-170*n|0)+','+(230-90*n|0)+',255,'+(.9-.5*n)+')';g.fillRect(q[0],q[1],s,s)}},
+ orbit(g,w,h,t,mx,my){const f=Math.min(w,h)*1.4,a=t*.2+mx*1.1,b=.35+my*.4;O=O||Array.from({length:14},(_,i)=>{const u=Math.acos(1-2*(i+.5)/14),v=Math.PI*(1+Math.sqrt(5))*i;return{x:2.4*Math.sin(u)*Math.cos(v),y:2.4*Math.cos(u),z:2.4*Math.sin(u)*Math.sin(v),s:.35+.25*((i*7)%5)/4,k:i}});
+  const E=[[0,1],[1,3],[3,2],[2,0],[4,5],[5,7],[7,6],[6,4],[0,4],[1,5],[2,6],[3,7]],c=V(0,0,0,a,b,w,h,8,f),gr=g.createRadialGradient(c[0],c[1],0,c[0],c[1],w*.28);gr.addColorStop(0,'rgba(120,190,255,.8)');gr.addColorStop(1,'rgba(40,90,255,0)');g.fillStyle=gr;g.fillRect(0,0,w,h);g.lineWidth=Math.max(1,w/300);
+  for(const o of O){const r=t*.6+o.k,cr=Math.cos(r),sr=Math.sin(r),P=[];for(let m=0;m<8;m++){const x=(m&1?1:-1)*o.s,y=(m&2?1:-1)*o.s,z=(m&4?1:-1)*o.s;P.push(V(o.x+x*cr+z*sr,o.y+y,o.z-x*sr+z*cr,a,b,w,h,8,f))}
+   g.strokeStyle='rgba(170,215,255,'+Math.max(.15,Math.min(.9,.45+(8-P[0][2])*.12))+')';g.beginPath();for(const[i,j]of E){g.moveTo(P[i][0],P[i][1]);g.lineTo(P[j][0],P[j][1])}g.stroke()}}
+};
+function liveLoop(cv,get,active){const g=cv.getContext('2d');let last=0;(function f(t){requestAnimationFrame(f);const n=LIVE[get()];if(!n||!active()||document.hidden){if(cv.style.display!=='none')cv.style.display='none';return}
+ if(cv.style.display!=='block')cv.style.display='block';if(t-last<33)return;last=t;const r=cv.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2),W=Math.round(r.width*d),H=Math.round(r.height*d);if(!W)return;if(cv.width!==W||cv.height!==H){cv.width=W;cv.height=H}
+ TILT.x+=(TILT.tx-TILT.x)*.1;TILT.y+=(TILT.ty-TILT.y)*.1;g.clearRect(0,0,W,H);SC[n](g,W,H,t/1000,TILT.x,TILT.y)})(0)}
+liveLoop($('wlive'),()=>S.wall,()=>!locked&&!open);liveLoop($('llive'),()=>S.lwall,()=>locked);
+function androidFp(){const box=$('abox');box.innerHTML='<div class="scan">👆</div>';$('asub').textContent='Touch the fingerprint sensor';window.onBio=ok=>{if(ok)unlockNow();else{$('asub').textContent='Not verified.';box.innerHTML='<button class="btn p" id="rt">Try again</button><button class="btn" id="bk2" style="background:#ffffff1f;color:#fff">Use screen lock instead</button>';$('rt').onclick=androidFp;$('bk2').onclick=()=>showAuth('main')}};Android.biometric()}
+async function androidEnroll(){if(!Android.biometricAvailable())throw {name:'NoSensor'};return await new Promise((res,rej)=>{window.onBio=ok=>ok?res('device'):rej({name:'NotVerified'});Android.biometric()})}
+function openDrawer(){const d=$('drawer'),q=$('dq');d.classList.add('on');q.value='';let apps=null;try{apps=window.Android?JSON.parse(Android.listApps()):null}catch(e){}
+ if(!apps)apps=APPS.map(a=>({n:a.n,id:a.id,e:a.i})).concat(UA.map(a=>({n:a.name,u:a.id,e:a.icon})));apps.sort((x,y)=>x.n.localeCompare(y.n));
+ const draw=()=>{const s=q.value.toLowerCase();$('dg').innerHTML=apps.map((a,i)=>a.n.toLowerCase().includes(s)?'<button class="app" data-i="'+i+'"><div class="ic" style="background:#ffffff30">'+(a.i?'<img src="data:image/png;base64,'+a.i+'" width="44" height="44" alt="">':a.e)+'</div>'+esc(a.n)+'</button>':'').join('');
+  $('dg').querySelectorAll('.app').forEach(b=>{const a=apps[+b.dataset.i];let tm;b.onclick=()=>{if(a.p)Android.launch(a.p);else{d.classList.remove('on');a.u?launchU(a.u):launch(a.id)}};b.onpointerdown=()=>{if(a.p)tm=setTimeout(()=>Android.uninstall(a.p),800)};b.onpointerup=b.onpointerleave=()=>clearTimeout(tm)})};
+ q.oninput=draw;draw()}
+$('dock').insertAdjacentHTML('beforeend','<button class="app" id="drbtn" aria-label="All apps"><div class="ic" style="background:#ffffff40">⠿</div></button>');$('drbtn').onclick=openDrawer;
+function launcherSec(el){const A=window.Android,need=()=>toast('Install the EVEREST launcher app on Android to use this');
+ el.innerHTML='<b style="display:block;margin:2px 4px 10px">Launcher</b>'+(A?'':'<p style="color:var(--mute);font-size:13px;line-height:1.5;padding:0 6px 10px">These options work when EVEREST is installed as the Android launcher app.</p>')+'<div class="row"><span>Default home screen</span><button class="btn sm" id="lh">Set</button></div><div class="row"><span>System lock screen</span><button class="btn sm" id="ll">Open</button></div><p style="color:var(--mute);font-size:13px;line-height:1.5;padding:0 6px 10px">Android does not let any app replace its secure lock screen, so the system lock stays. EVEREST\'s own lock screen shows when you open the launcher.</p><div class="row" style="flex-direction:column;align-items:stretch;gap:8px"><span>System settings</span><div class="seg" id="lq"></div></div><div style="height:14px"></div>';
+ $('lh').onclick=()=>A?A.setDefaultHome():need();$('ll').onclick=()=>A?A.openSettings('security'):need();
+ $('lq').innerHTML=[['wifi','Wi-Fi'],['bluetooth','Bluetooth'],['display','Display'],['sound','Sound'],['battery','Battery'],['apps','Apps'],['storage','Storage'],['location','Location'],['accessibility','Access']].map(x=>'<button data-s="'+x[0]+'">'+x[1]+'</button>').join('');
+ $('lq').querySelectorAll('button').forEach(b=>b.onclick=()=>A?A.openSettings(b.dataset.s):need())}
+theme();clock();wtasks();tiles();icons();setInterval(clock,1000);
+if('serviceWorker' in navigator&&location.protocol==='https:'&&!window.Android)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+</script>
+</body>
+</html>
